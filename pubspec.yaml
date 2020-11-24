@@ -1,8 +1,8 @@
 name: flutter_scan
 description: A QR scan Flutter plugin.
 version: 0.0.1
-author:
-homepage:
+author: ggband.cn
+homepage: https://www.cnblogs.com/ggband/
 
 environment:
   sdk: ">=2.7.0 <3.0.0"
