@@ -9,7 +9,6 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
-import io.flutter.plugin.common.PluginRegistry.Registrar
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 import android.util.Log
@@ -22,9 +21,8 @@ class FlutterScanPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     /// when the Flutter Engine is detached from the Activity
     private var channel: MethodChannel? = null
 
-    private var mContext: Context? = null
-    private var mActivity: Activity? = null
     private var mFlutterPluginBinding: FlutterPlugin.FlutterPluginBinding? = null
+    private var mActivityPluginBinding: ActivityPluginBinding? = null
 
     override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
         mFlutterPluginBinding = flutterPluginBinding
@@ -48,7 +46,7 @@ class FlutterScanPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
     override fun onDetachedFromActivity() {
         Log.e("onDetachedFromActivity", "onDetachedFromActivity")
-        mActivity = null
+        mActivityPluginBinding = null
     }
 
     override fun onReattachedToActivityForConfigChanges(@NonNull binding: ActivityPluginBinding) {
@@ -56,13 +54,7 @@ class FlutterScanPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
         Log.e("onAttachedToActivity", "onAttachedToActivity")
-        if (mFlutterPluginBinding == null) {
-            Log.e("onAttachedToActivity", "mFlutterPluginBinding==null")
-            this.mActivity = binding.activity
-            return
-        }
-        this.mActivity = binding.activity
-        this.mContext = binding.activity.applicationContext
+        mActivityPluginBinding = binding
         doBind()
     }
 
@@ -71,9 +63,9 @@ class FlutterScanPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
 
     private fun doBind() {
-        if (mActivity == null || mFlutterPluginBinding == null) return
+        if (mActivityPluginBinding == null || mFlutterPluginBinding == null) return
         channel = MethodChannel(mFlutterPluginBinding?.binaryMessenger, "flutter_scan")
         channel?.setMethodCallHandler(this)
-        mFlutterPluginBinding?.platformViewRegistry?.registerViewFactory("cn.ggband/scanView", ScanViewFactory(mFlutterPluginBinding?.binaryMessenger!!, mActivity!!, null))
+        mFlutterPluginBinding?.platformViewRegistry?.registerViewFactory("cn.ggband/scanView", ScanViewFactory(mActivityPluginBinding!!, mFlutterPluginBinding!!.binaryMessenger, null))
     }
 }
