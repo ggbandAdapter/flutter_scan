@@ -7,12 +7,10 @@ import 'package:flutter/services.dart';
 typedef ScanWidgetCreatedCallback = void Function(ScanWidgetController);
 
 class ScanWidget extends StatefulWidget {
-  final String text;
   final ScanWidgetCreatedCallback onScanWidgetCreated;
 
   const ScanWidget({
     @required Key key,
-    this.text,
     @required this.onScanWidgetCreated,
   })  : assert(key != null),
         assert(onScanWidgetCreated != null),
@@ -34,10 +32,10 @@ class _ScanWidgetState extends State<ScanWidget> {
         viewType: 'cn.ggband/scanView',
         creationParamsCodec: const StandardMessageCodec(),
         creationParams: {
-          'text': widget.text ?? '',
+          'testP': 'testP',
         },
         onPlatformViewCreated: _onPlatformViewCreated,
-        layoutDirection: TextDirection.rtl,
+        // layoutDirection: TextDirection.rtl,
       );
     } else if (defaultTargetPlatform == TargetPlatform.iOS) {
       return Text('ios Not provided');
@@ -57,6 +55,7 @@ class _ScanWidgetState extends State<ScanWidget> {
 class ScanWidgetController {
   //扫描结果回调
   static const scanMethodCall = 'onRecognizeQR';
+  final MethodChannel _channel;
 
   ScanWidgetController._(int id, GlobalKey qrKey)
       : _channel = MethodChannel('cn.ggband/scanView_$id') {
@@ -77,8 +76,6 @@ class ScanWidgetController {
     );
   }
 
-  final MethodChannel _channel;
-
   final StreamController<String> _scanUpdateController =
       StreamController<String>();
 
@@ -98,6 +95,11 @@ class ScanWidgetController {
 
   void resumeCamera() {
     _channel.invokeMethod('resumeCamera');
+  }
+
+
+  void startScan() {
+    _channel.invokeMethod('startScan');
   }
 
   void dispose() {

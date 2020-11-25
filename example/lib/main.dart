@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_scan/scan_widget.dart';
 
@@ -12,7 +11,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  String _content = 'loading...';
   ScanWidgetController _scanWidgetController;
 
   @override
@@ -27,18 +25,27 @@ class _MyAppState extends State<MyApp> {
         appBar: AppBar(
           title: const Text('Plugin example app'),
         ),
-        body: Center(
-            child: Column(
+        body: Stack(
           children: [
-            Text('Running on: $_content\n'),
-            Expanded(
-                child: ScanWidget(
+            ScanWidget(
               key: GlobalKey(debugLabel: 'QR'),
-              text: 'init ScanView',
               onScanWidgetCreated: _onScanWidgetCreated,
-            ))
+            ),
+            Positioned(
+              bottom: 0,
+              child: Column(
+                children: [
+                  RaisedButton(
+                      child: Text('toggleFlash'),
+                      onPressed: () => _scanWidgetController.toggleFlash()),
+                  RaisedButton(
+                      child: Text('startScan'),
+                      onPressed: () => _scanWidgetController.startScan()),
+                ],
+              ),
+            )
           ],
-        )),
+        ),
       ),
     );
   }
@@ -49,9 +56,7 @@ class _MyAppState extends State<MyApp> {
     this._scanWidgetController = controller;
     controller.scannedDataStream.listen((scanData) {
       print('scannedDataStream:$scanData');
-      setState(() {
-        _content = scanData;
-      });
+      setState(() {});
     });
   }
 }
