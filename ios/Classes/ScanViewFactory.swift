@@ -5,13 +5,15 @@
 //  Created by Julius Canute on 21/12/18.
 //
 
-import Foundation
+//import Foundation
+import Flutter
+import UIKit
 
 public class ScanViewFactory: NSObject, FlutterPlatformViewFactory {
 
-    var registrar: FlutterPluginRegistrar?
+    var registrar: FlutterPluginRegistrar!;
 
-    public init(withRegistrar registrar: FlutterPluginRegistrar){
+    @objc public init(registrar: FlutterPluginRegistrar?){
         super.init()
         self.registrar = registrar
     }
