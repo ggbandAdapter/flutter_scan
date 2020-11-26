@@ -1,14 +1,24 @@
 import Flutter
 import UIKit
 
+
 public class SwiftFlutterScanPlugin: NSObject, FlutterPlugin {
-  public static func register(with registrar: FlutterPluginRegistrar) {
-    let channel = FlutterMethodChannel(name: "flutter_scan", binaryMessenger: registrar.messenger())
-    let instance = SwiftFlutterScanPlugin()
-    registrar.addMethodCallDelegate(instance, channel: channel)
+
+  var factory: ScanViewFactory
+
+  public init(with registrar: FlutterPluginRegistrar) {
+    self.factory = ScanViewFactory(withRegistrar: registrar)
+    registrar.register(factory, withId: "cn.ggband.ruilong/scanView")
   }
 
-  public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-    result("iOS " + UIDevice.current.systemVersion)
+  public static func register(with registrar: FlutterPluginRegistrar) {
+    registrar.addApplicationDelegate(SwiftFlutterScanPlugin(with: registrar))
   }
+
+  public func applicationDidEnterBackground(_ application: UIApplication) {
+  }
+
+  public func applicationWillTerminate(_ application: UIApplication) {
+  }
+
 }

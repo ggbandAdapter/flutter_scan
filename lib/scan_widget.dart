@@ -37,7 +37,12 @@ class _ScanWidgetState extends State<ScanWidget> {
         // layoutDirection: TextDirection.rtl,
       );
     } else if (defaultTargetPlatform == TargetPlatform.iOS) {
-      return Text('ios Not provided');
+      return UiKitView(
+        viewType: 'cn.ggband.ruilong/scanView',
+        onPlatformViewCreated: _onPlatformViewCreated,
+        creationParams: {'width': 0, 'height': 0,},
+        creationParamsCodec: StandardMessageCodec(),
+      );
     } else {
       return Container();
     }
