@@ -3,16 +3,17 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_scan/scan_config.dart';
 
 typedef ScanWidgetCreatedCallback = void Function(ScanWidgetController);
 
 class ScanWidget extends StatefulWidget {
   final ScanWidgetCreatedCallback onScanWidgetCreated;
+  final ScanConfig scanConfig;
 
-  const ScanWidget({
-    @required Key key,
-    @required this.onScanWidgetCreated,
-  })  : assert(key != null),
+  const ScanWidget(
+      {@required Key key, @required this.onScanWidgetCreated, this.scanConfig})
+      : assert(key != null),
         assert(onScanWidgetCreated != null),
         super(key: key);
 
@@ -29,11 +30,9 @@ class _ScanWidgetState extends State<ScanWidget> {
   Widget _buildPlatformWidget() {
     if (defaultTargetPlatform == TargetPlatform.android) {
       return AndroidView(
-        viewType: 'cn.ggband/scanView',
+        viewType: 'cn.ggband.ruilong/scanView',
         creationParamsCodec: const StandardMessageCodec(),
-        creationParams: {
-          'testP': 'testP',
-        },
+        creationParams: _buildParams(),
         onPlatformViewCreated: _onPlatformViewCreated,
         // layoutDirection: TextDirection.rtl,
       );
@@ -42,6 +41,17 @@ class _ScanWidgetState extends State<ScanWidget> {
     } else {
       return Container();
     }
+  }
+
+  Map<String, dynamic> _buildParams() {
+    final vScanConfig = widget.scanConfig ?? ScanConfig();
+    return {
+      'isShowVibrate': vScanConfig.isShowVibrate,
+      'isShowBeep': vScanConfig.isShowBeep,
+      'isFullScreenScan': vScanConfig.isFullScreenScan,
+      'scanFrameHeightOffsets': vScanConfig.scanFrameHeightOffsets,
+      'scanHintText': vScanConfig.scanHintText,
+    };
   }
 
   void _onPlatformViewCreated(int id) {
@@ -55,14 +65,15 @@ class _ScanWidgetState extends State<ScanWidget> {
 class ScanWidgetController {
   //扫描结果回调
   static const scanMethodCall = 'onRecognizeQR';
+  static const scanError = 'onRequestPermission';
   final MethodChannel _channel;
 
   ScanWidgetController._(int id, GlobalKey qrKey)
-      : _channel = MethodChannel('cn.ggband/scanView_$id') {
+      : _channel = MethodChannel('cn.ggband.ruilong/scanView_$id') {
     if (defaultTargetPlatform == TargetPlatform.iOS) {
-      final RenderBox renderBox = qrKey.currentContext.findRenderObject();
-      _channel.invokeMethod('setDimensions',
-          {'width': renderBox.size.width, 'height': renderBox.size.height});
+      // final RenderBox renderBox = qrKey.currentContext.findRenderObject();
+//      _channel.invokeMethod('setDimensions',
+//          {'width': renderBox.size.width, 'height': renderBox.size.height});
     }
     _channel.setMethodCallHandler(
       (call) async {
@@ -71,6 +82,9 @@ class ScanWidgetController {
             if (call.arguments != null) {
               _scanUpdateController.sink.add(call.arguments.toString());
             }
+            break;
+          case scanError:
+            break;
         }
       },
     );
@@ -80,10 +94,6 @@ class ScanWidgetController {
       StreamController<String>();
 
   Stream<String> get scannedDataStream => _scanUpdateController.stream;
-
-  void flipCamera() {
-    _channel.invokeMethod('flipCamera');
-  }
 
   void toggleFlash() {
     _channel.invokeMethod('toggleFlash');
@@ -96,7 +106,6 @@ class ScanWidgetController {
   void resumeCamera() {
     _channel.invokeMethod('resumeCamera');
   }
-
 
   void startScan() {
     _channel.invokeMethod('startScan');
