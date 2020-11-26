@@ -1,62 +1,44 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_scan/scan_widget.dart';
+import 'package:flutter_scan_example/scan_page.dart';
 
 void main() {
   runApp(MyApp());
 }
 
-class MyApp extends StatefulWidget {
-  @override
-  _MyAppState createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
-  ScanWidgetController _scanWidgetController;
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
+class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Plugin example app'),
-        ),
-        body: Stack(
-          children: [
-            ScanWidget(
-              key: GlobalKey(debugLabel: 'QR'),
-              onScanWidgetCreated: _onScanWidgetCreated,
-            ),
-            Positioned(
-              bottom: 0,
-              child: Column(
-                children: [
-                  RaisedButton(
-                      child: Text('toggleFlash'),
-                      onPressed: () => _scanWidgetController.toggleFlash()),
-                  RaisedButton(
-                      child: Text('startScan'),
-                      onPressed: () => _scanWidgetController.startScan()),
-                ],
-              ),
-            )
-          ],
-        ),
-      ),
+          appBar: AppBar(
+            title: const Text('Plugin example app'),
+          ),
+          body: HomePage()),
     );
   }
+}
 
-  ///ScanWidget 构建回调
-  ///[controller] ScanWidgetController
-  void _onScanWidgetCreated(ScanWidgetController controller) {
-    this._scanWidgetController = controller;
-    controller.scannedDataStream.listen((scanData) {
-      print('scannedDataStream:$scanData');
-      setState(() {});
-    });
+class HomePage extends StatefulWidget {
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Column(
+        children: [
+          RaisedButton(
+            onPressed: () {
+              Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+                return ScanPage();
+              }));
+            },
+            child: Text('GO SCAN'),
+          )
+        ],
+      ),
+    );
   }
 }

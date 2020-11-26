@@ -14,38 +14,25 @@ import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 import android.util.Log
 
 /** FlutterScanPlugin */
-class FlutterScanPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
-    /// The MethodChannel that will the communication between Flutter and native Android
-    ///
-    /// This local reference serves to register the plugin with the Flutter Engine and unregister it
-    /// when the Flutter Engine is detached from the Activity
-    private var channel: MethodChannel? = null
+class FlutterScanPlugin : FlutterPlugin, ActivityAware {
+
 
     private var mFlutterPluginBinding: FlutterPlugin.FlutterPluginBinding? = null
     private var mActivityPluginBinding: ActivityPluginBinding? = null
+
 
     override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
         mFlutterPluginBinding = flutterPluginBinding
         doBind()
     }
 
-    override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
-        if (call.method == "getPlatformVersion") {
-            result.success("Android ${android.os.Build.VERSION.RELEASE}")
-        } else {
-            result.notImplemented()
-        }
-    }
 
     override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
-        channel?.setMethodCallHandler(null)
-        channel = null
         mFlutterPluginBinding = null
     }
 
 
     override fun onDetachedFromActivity() {
-        Log.e("onDetachedFromActivity", "onDetachedFromActivity")
         mActivityPluginBinding = null
     }
 
@@ -53,19 +40,16 @@ class FlutterScanPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     }
 
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
-        Log.e("onAttachedToActivity", "onAttachedToActivity")
         mActivityPluginBinding = binding
         doBind()
     }
 
     override fun onDetachedFromActivityForConfigChanges() {
-    }
 
+    }
 
     private fun doBind() {
         if (mActivityPluginBinding == null || mFlutterPluginBinding == null) return
-        channel = MethodChannel(mFlutterPluginBinding?.binaryMessenger, "flutter_scan")
-        channel?.setMethodCallHandler(this)
-        mFlutterPluginBinding?.platformViewRegistry?.registerViewFactory("cn.ggband/scanView", ScanViewFactory(mActivityPluginBinding!!, mFlutterPluginBinding!!.binaryMessenger, null))
+        mFlutterPluginBinding?.platformViewRegistry?.registerViewFactory("cn.ggband.ruilong/scanView", ScanViewFactory(mActivityPluginBinding!!, mFlutterPluginBinding!!.binaryMessenger))
     }
 }
