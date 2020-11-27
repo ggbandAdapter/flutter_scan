@@ -16,10 +16,11 @@ class _ScanPageState extends State<ScanPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
+    return Container(
+        child: Stack(
       children: [
         ScanWidget(
-          key: GlobalKey(debugLabel: 'QR'),
+          key: GlobalKey(debugLabel: 'qr_scan'),
           onScanWidgetCreated: _onScanWidgetCreated,
         ),
         Positioned(
@@ -33,7 +34,7 @@ class _ScanPageState extends State<ScanPage> {
           ),
         )
       ],
-    );
+    ));
   }
 
   ///ScanWidget 构建回调
