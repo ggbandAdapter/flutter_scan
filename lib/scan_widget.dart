@@ -24,7 +24,16 @@ class ScanWidget extends StatefulWidget {
 class _ScanWidgetState extends State<ScanWidget> {
   @override
   Widget build(BuildContext context) {
-    return _buildPlatformWidget();
+    return Container(
+      color: Colors.black45,
+      child: _buildPlatformWidget(),
+    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+   // SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.bottom]);
   }
 
   Widget _buildPlatformWidget() {
@@ -34,13 +43,15 @@ class _ScanWidgetState extends State<ScanWidget> {
         creationParamsCodec: const StandardMessageCodec(),
         creationParams: _buildParams(),
         onPlatformViewCreated: _onPlatformViewCreated,
-        // layoutDirection: TextDirection.rtl,
       );
     } else if (defaultTargetPlatform == TargetPlatform.iOS) {
       return UiKitView(
         viewType: 'cn.ggband.ruilong/scanView',
         onPlatformViewCreated: _onPlatformViewCreated,
-        creationParams: {'width': 0, 'height': 0,},
+        creationParams: {
+          'width': 0,
+          'height': 0,
+        },
         creationParamsCodec: StandardMessageCodec(),
       );
     } else {
@@ -76,9 +87,9 @@ class ScanWidgetController {
   ScanWidgetController._(int id, GlobalKey qrKey)
       : _channel = MethodChannel('cn.ggband.ruilong/scanView_$id') {
     if (defaultTargetPlatform == TargetPlatform.iOS) {
-      // final RenderBox renderBox = qrKey.currentContext.findRenderObject();
-//      _channel.invokeMethod('setDimensions',
-//          {'width': renderBox.size.width, 'height': renderBox.size.height});
+      final RenderBox renderBox = qrKey.currentContext.findRenderObject();
+      _channel.invokeMethod('setDimensions',
+          {'width': renderBox.size.width, 'height': renderBox.size.height});
     }
     _channel.setMethodCallHandler(
       (call) async {

@@ -65,7 +65,6 @@ class ScanView(private val context: Context, private val id: Int, private val pa
     }
 
     private fun buildContentView(): View {
-
         mScanView = ScanSurfaceView(context)
         mScanView.init(mActivity)
         configScanView()
@@ -109,7 +108,7 @@ class ScanView(private val context: Context, private val id: Int, private val pa
      * 切换手电筒
      */
     private fun toggleFlash() {
-        Log.d("ggband", "toggleFlash:" + isLightOn+"-----------"+Thread.currentThread().getName())
+        Log.d("ggband", "toggleFlash:" + isLightOn + "-----------" + Thread.currentThread().getName())
         if (isLightOn) {
             mScanView.getCameraManager().offLight()
         } else {
@@ -165,7 +164,9 @@ class ScanView(private val context: Context, private val id: Int, private val pa
             }
 
             override fun onActivityDestroyed(p0: Activity?) {
-                targetActivityRun(p0) {}
+                targetActivityRun(p0) {
+                    mScanView.onDestroy()
+                }
             }
 
             override fun onActivitySaveInstanceState(p0: Activity?, p1: Bundle?) {
