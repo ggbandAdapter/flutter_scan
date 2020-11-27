@@ -18,12 +18,10 @@ class FlutterScanPlugin : FlutterPlugin, ActivityAware {
 
 
     private var mFlutterPluginBinding: FlutterPlugin.FlutterPluginBinding? = null
-    private var mActivityPluginBinding: ActivityPluginBinding? = null
 
 
     override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
         mFlutterPluginBinding = flutterPluginBinding
-        doBind()
     }
 
 
@@ -33,23 +31,22 @@ class FlutterScanPlugin : FlutterPlugin, ActivityAware {
 
 
     override fun onDetachedFromActivity() {
-        mActivityPluginBinding = null
+
     }
 
     override fun onReattachedToActivityForConfigChanges(@NonNull binding: ActivityPluginBinding) {
+        doBind(binding)
     }
 
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
-        mActivityPluginBinding = binding
-        doBind()
+        doBind(binding)
     }
 
     override fun onDetachedFromActivityForConfigChanges() {
-
+        mFlutterPluginBinding= null
     }
 
-    private fun doBind() {
-        if (mActivityPluginBinding == null || mFlutterPluginBinding == null) return
-        mFlutterPluginBinding?.platformViewRegistry?.registerViewFactory("cn.ggband.ruilong/scanView", ScanViewFactory(mActivityPluginBinding!!, mFlutterPluginBinding!!.binaryMessenger))
+    private fun doBind(binding:ActivityPluginBinding) {
+        mFlutterPluginBinding?.platformViewRegistry?.registerViewFactory("cn.ggband.ruilong/scanView", ScanViewFactory(binding, mFlutterPluginBinding!!.binaryMessenger))
     }
 }
