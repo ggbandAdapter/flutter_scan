@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_scan/scan_widget.dart';
+import 'package:flutter_scan/qr_code_scanner.dart';
 
 class ScanPage extends StatefulWidget {
   @override
@@ -7,7 +7,7 @@ class ScanPage extends StatefulWidget {
 }
 
 class _ScanPageState extends State<ScanPage> {
-  ScanWidgetController _scanWidgetController;
+  ScanWidgetController qrController;
 
   @override
   void initState() {
@@ -22,6 +22,13 @@ class _ScanPageState extends State<ScanPage> {
         ScanWidget(
           key: GlobalKey(debugLabel: 'qr_scan'),
           onScanWidgetCreated: _onScanWidgetCreated,
+          overlay: QrScannerOverlayShape(
+            borderColor: Colors.white,
+            borderRadius: 2,
+            borderLength: 12,
+            borderWidth: 2,
+            cutOutSize: 200,
+          ),
         ),
         Positioned(
           bottom: 0,
@@ -29,7 +36,7 @@ class _ScanPageState extends State<ScanPage> {
             children: [
               RaisedButton(
                   child: Text('toggleFlash'),
-                  onPressed: () => _scanWidgetController.toggleFlash()),
+                  onPressed: () => qrController.toggleFlash()),
             ],
           ),
         )
@@ -40,10 +47,16 @@ class _ScanPageState extends State<ScanPage> {
   ///ScanWidget 构建回调
   ///[controller] ScanWidgetController
   void _onScanWidgetCreated(ScanWidgetController controller) {
-    this._scanWidgetController = controller;
+    this.qrController = controller;
     controller.scannedDataStream.listen((scanData) {
       print('scannedDataStream:$scanData');
       Navigator.pop(context);
     });
+  }
+
+  @override
+  void dispose() {
+    qrController?.dispose();
+    super.dispose();
   }
 }

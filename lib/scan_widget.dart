@@ -3,17 +3,18 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_scan/scan_config.dart';
 
 typedef ScanWidgetCreatedCallback = void Function(ScanWidgetController);
 
 class ScanWidget extends StatefulWidget {
   final ScanWidgetCreatedCallback onScanWidgetCreated;
-  final ScanConfig scanConfig;
+  final ShapeBorder overlay;
 
-  const ScanWidget(
-      {@required Key key, @required this.onScanWidgetCreated, this.scanConfig})
-      : assert(key != null),
+  const ScanWidget({
+    @required Key key,
+    @required this.onScanWidgetCreated,
+    this.overlay,
+  })  : assert(key != null),
         assert(onScanWidgetCreated != null),
         super(key: key);
 
@@ -26,7 +27,19 @@ class _ScanWidgetState extends State<ScanWidget> {
   Widget build(BuildContext context) {
     return Container(
       color: Colors.black45,
-      child: _buildPlatformWidget(),
+      child: Stack(
+        children: [
+          _buildPlatformWidget(),
+          if (widget.overlay != null)
+            Container(
+              decoration: ShapeDecoration(
+                shape: widget.overlay,
+              ),
+            )
+          else
+            Container(),
+        ],
+      ),
     );
   }
 
@@ -41,7 +54,6 @@ class _ScanWidgetState extends State<ScanWidget> {
       return AndroidView(
         viewType: 'cn.ggband.ruilong/scanView',
         creationParamsCodec: const StandardMessageCodec(),
-        creationParams: _buildParams(),
         onPlatformViewCreated: _onPlatformViewCreated,
       );
     } else if (defaultTargetPlatform == TargetPlatform.iOS) {
@@ -57,17 +69,6 @@ class _ScanWidgetState extends State<ScanWidget> {
     } else {
       return Container();
     }
-  }
-
-  Map<String, dynamic> _buildParams() {
-    final vScanConfig = widget.scanConfig ?? ScanConfig();
-    return {
-      'isShowVibrate': vScanConfig.isShowVibrate,
-      'isShowBeep': vScanConfig.isShowBeep,
-      'isFullScreenScan': vScanConfig.isFullScreenScan,
-      'scanFrameHeightOffsets': vScanConfig.scanFrameHeightOffsets,
-      'scanHintText': vScanConfig.scanHintText,
-    };
   }
 
   void _onPlatformViewCreated(int id) {
