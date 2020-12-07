@@ -43,5 +43,4 @@ android {
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'com.github.maning0303:MNZXingCode:V2.1.5'
-//    https://github.com/maning0303/MNZXingCode
 }

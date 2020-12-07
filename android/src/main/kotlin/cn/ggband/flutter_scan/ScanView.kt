@@ -94,14 +94,12 @@ class ScanView(private val context: Context, private val id: Int, private val pa
             }
 
             override fun onFail(msg: String) {
-                Log.d("ggband", "onFail:" + msg)
             }
         })
     }
 
     private fun checkPermissionScan() {
         if (hasCameraPermission()) {
-            Log.d("ggband", "=========hasCameraPermission============")
             mScanView?.onResume()
         } else {
             checkAndRequestPermission()
@@ -112,7 +110,6 @@ class ScanView(private val context: Context, private val id: Int, private val pa
      * 切换手电筒
      */
     private fun toggleFlash() {
-        Log.d("ggband", "toggleFlash:" + isLightOn + "-----------" + Thread.currentThread().getName())
         if (isLightOn) {
             mScanView?.getCameraManager()?.offLight()
         } else {
@@ -137,12 +134,9 @@ class ScanView(private val context: Context, private val id: Int, private val pa
 
     private inner class CameraRequestPermissionsListener : PluginRegistry.RequestPermissionsResultListener {
         override fun onRequestPermissionsResult(id: Int, permissions: Array<String>, grantResults: IntArray): Boolean {
-            Log.d("ggband", "=========onRequestPermissionsResult============")
             if (grantResults.size > 0 && id == CAMERA_REQUEST_ID && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Log.d("ggband", "=========onRequestPermissionsResult=======true=====")
                 return true
             }
-            Log.d("ggband", "=========onRequestPermissionsResult=======false=====")
             return false
         }
     }
@@ -151,14 +145,12 @@ class ScanView(private val context: Context, private val id: Int, private val pa
         mActivity.application.registerActivityLifecycleCallbacks(object : Application.ActivityLifecycleCallbacks {
             override fun onActivityPaused(p0: Activity?) {
                 targetActivityRun(p0) {
-                    Log.d("ggband", "=========onActivityPaused======")
                     mScanView?.onPause()
                 }
             }
 
             override fun onActivityResumed(p0: Activity?) {
                 targetActivityRun(p0) {
-                    Log.d("ggband", "=========onActivityResumed======")
                     mScanView?.onResume()
                 }
             }
@@ -189,7 +181,6 @@ class ScanView(private val context: Context, private val id: Int, private val pa
 
     private fun targetActivityRun(targetActivity: Activity?, action: () -> Unit) {
         if (mActivity == targetActivity) {
-            Log.d("ggband", "targetActivityRun currentThreadName:" + Thread.currentThread().getName())
             action()
         }
     }
