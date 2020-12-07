@@ -9,7 +9,6 @@ import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.platform.PlatformView
-import com.google.zxing.client.android.view.ScanSurfaceView
 import android.Manifest
 import android.content.pm.PackageManager
 import android.content.pm.PackageManager.PERMISSION_GRANTED
@@ -18,18 +17,20 @@ import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 import io.flutter.plugin.common.PluginRegistry
 import android.util.Log
 import io.flutter.FlutterInjector.Builder
-import com.google.zxing.client.android.model.MNScanConfig
-import com.google.zxing.client.android.other.OnScanCallback
-import android.graphics.Bitmap
-import android.view.LayoutInflater
-import cn.ggband.flutter_scan.R
+
+import com.google.zxing.ResultPoint
+import android.hardware.Camera.CameraInfo
+import com.journeyapps.barcodescanner.BarcodeCallback
+import com.journeyapps.barcodescanner.BarcodeResult
+import com.journeyapps.barcodescanner.BarcodeView
+
 
 /** ScanView */
 class ScanView(private val context: Context, private val id: Int, private val params: Map<String, Any>?, val activityPluginBinding: ActivityPluginBinding, private val messenger: BinaryMessenger) : PlatformView, MethodChannel.MethodCallHandler {
 
     private val channel: MethodChannel = MethodChannel(messenger, "cn.ggband.ruilong/scanView_$id")
 
-    private lateinit var mScanView: ScanSurfaceView
+    private var mScanView: BarcodeView? = null
     //手电筒是否开启
     private var isLightOn = false
 
@@ -56,7 +57,7 @@ class ScanView(private val context: Context, private val id: Int, private val pa
         when (call.method) {
             "toggleFlash" -> {
                 toggleFlash()
-                result.success(null)
+                result.success(isLightOn)
             }
             else -> {
                 result.notImplemented()
@@ -65,40 +66,33 @@ class ScanView(private val context: Context, private val id: Int, private val pa
     }
 
     private fun buildContentView(): View {
-        mScanView = ScanSurfaceView(context)
-        mScanView.init(mActivity)
-        configScanView()
-        checkPermissionScan()
-        return mScanView
+        if (mScanView == null) {
+            mScanView = BarcodeView(context)
+            configScanView()
+            checkPermissionScan()
+        }
+        return mScanView!!
     }
 
     private fun configScanView() {
-        val scanConfig: MNScanConfig = MNScanConfig.Builder()
-                .setSupportZoom(false)
-                .isShowVibrate(params?.get("isShowVibrate") as Boolean ?: true)
-                .isShowBeep(params?.get("isShowBeep") as Boolean ?: false)
-                .setFullScreenScan(params?.get("isFullScreenScan") as Boolean ?: false)
-                .setScanFrameHeightOffsets(params?.get("scanFrameHeightOffsets") as Int ?: 0)
-                .setScanHintText(params?.get("scanHintText")?.toString() ?: "")
-                .setLaserStyle(MNScanConfig.LaserStyle.Grid)
-                //    .isShowLightController(true)
-                .builder()
-        mScanView.setScanConfig(scanConfig)
-        mScanView.setOnScanCallback(object : OnScanCallback {
-            override fun onScanSuccess(resultTxt: String, barcode: Bitmap?) {
-                channel.invokeMethod("onRecognizeQR", resultTxt)
-            }
+        var settings = mScanView?.cameraSettings
+        settings?.requestedCameraId = CameraInfo.CAMERA_FACING_BACK
+        mScanView?.cameraSettings = settings
+        mScanView?.decodeContinuous(
+                object : BarcodeCallback {
+                    override fun barcodeResult(result: BarcodeResult) {
+                        channel.invokeMethod("onRecognizeQR", result.text)
+                    }
 
-            override fun onFail(msg: String) {
-                Log.d("ggband", "onFail:" + msg)
-            }
-        })
+                    override fun possibleResultPoints(resultPoints: List<ResultPoint>) {}
+                }
+        )
     }
 
     private fun checkPermissionScan() {
         if (hasCameraPermission()) {
             Log.d("ggband", "=========hasCameraPermission============")
-            mScanView.onResume()
+            mScanView?.resume()
         } else {
             checkAndRequestPermission()
         }
@@ -109,11 +103,7 @@ class ScanView(private val context: Context, private val id: Int, private val pa
      */
     private fun toggleFlash() {
         Log.d("ggband", "toggleFlash:" + isLightOn + "-----------" + Thread.currentThread().getName())
-        if (isLightOn) {
-            mScanView.getCameraManager().offLight()
-        } else {
-            mScanView.getCameraManager().openLight()
-        }
+        mScanView?.setTorch(!isLightOn)
         isLightOn = !isLightOn
     }
 
@@ -148,14 +138,14 @@ class ScanView(private val context: Context, private val id: Int, private val pa
             override fun onActivityPaused(p0: Activity?) {
                 targetActivityRun(p0) {
                     Log.d("ggband", "=========onActivityPaused======")
-                    mScanView.onPause()
+                    mScanView?.pause()
                 }
             }
 
             override fun onActivityResumed(p0: Activity?) {
                 targetActivityRun(p0) {
                     Log.d("ggband", "=========onActivityResumed======")
-                    mScanView.onResume()
+                    mScanView?.resume()
                 }
             }
 
@@ -165,7 +155,6 @@ class ScanView(private val context: Context, private val id: Int, private val pa
 
             override fun onActivityDestroyed(p0: Activity?) {
                 targetActivityRun(p0) {
-                    mScanView.onDestroy()
                 }
             }
 
@@ -192,6 +181,6 @@ class ScanView(private val context: Context, private val id: Int, private val pa
 
     override fun dispose() {
         channel.setMethodCallHandler(null)
-        mScanView.onDestroy()
+        mScanView?.pause()
     }
 }

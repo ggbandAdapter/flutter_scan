@@ -33,7 +33,7 @@ class _ScanWidgetState extends State<ScanWidget> {
   @override
   void initState() {
     super.initState();
-   // SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.bottom]);
+    // SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.bottom]);
   }
 
   Widget _buildPlatformWidget() {

@@ -4,9 +4,6 @@ import 'package:flutter_scan_example/scan_page.dart';
 
 void main() {
   runApp(MyApp());
-  WidgetsFlutterBinding.ensureInitialized();
-  SystemChrome.setPreferredOrientations(
-      [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
 }
 
 class MyApp extends StatelessWidget {
