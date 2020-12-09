@@ -88,9 +88,11 @@ class ScanWidgetController {
   ScanWidgetController._(int id, GlobalKey qrKey)
       : _channel = MethodChannel('cn.ggband.ruilong/scanView_$id') {
     if (defaultTargetPlatform == TargetPlatform.iOS) {
-      final RenderBox renderBox = qrKey.currentContext.findRenderObject();
-      _channel.invokeMethod('setDimensions',
-          {'width': renderBox.size.width, 'height': renderBox.size.height});
+      Future.delayed(Duration(milliseconds: 200)).then((value) {
+        final RenderBox renderBox = qrKey.currentContext.findRenderObject();
+        _channel.invokeMethod('setDimensions',
+            {'width': renderBox.size.width, 'height': renderBox.size.height});
+      });
     }
     _channel.setMethodCallHandler(
       (call) async {
