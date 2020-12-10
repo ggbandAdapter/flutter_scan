@@ -30,6 +30,7 @@ class _ScanPageState extends State<ScanPage> {
             borderLength: 12,
             borderWidth: 2,
             cutOutSize: 200,
+            vOffset: -120
           ),
         ),
         Positioned(
