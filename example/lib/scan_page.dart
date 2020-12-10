@@ -11,6 +11,8 @@ class _ScanPageState extends State<ScanPage> {
 
   bool isFlash = false;
 
+  int frameMillisecondsSinceEpoch = 0;
+
   @override
   void initState() {
     super.initState();
@@ -30,7 +32,6 @@ class _ScanPageState extends State<ScanPage> {
             borderLength: 12,
             borderWidth: 2,
             cutOutSize: 200,
-            vOffset: -120
           ),
         ),
         Positioned(
@@ -51,12 +52,15 @@ class _ScanPageState extends State<ScanPage> {
   ///[controller] ScanWidgetController
   void _onScanWidgetCreated(ScanWidgetController controller) {
     this.qrController = controller;
+    frameMillisecondsSinceEpoch = DateTime.now().millisecondsSinceEpoch;
     controller.scannedDataStream.listen((scanData) {
+      int scanMillisecondsSinceEpoch = DateTime.now().millisecondsSinceEpoch;
+      int scanTime = scanMillisecondsSinceEpoch - frameMillisecondsSinceEpoch;
       _closeFlash();
       qrController?.pauseCamera();
       qrController?.dispose();
       print('scannedDataStream:$scanData');
-      Navigator.pop(context);
+      Navigator.pop(context, scanTime);
     });
   }
 
