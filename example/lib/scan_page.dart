@@ -9,6 +9,8 @@ class ScanPage extends StatefulWidget {
 class _ScanPageState extends State<ScanPage> {
   ScanWidgetController qrController;
 
+  bool isFlash = false;
+
   @override
   void initState() {
     super.initState();
@@ -49,9 +51,25 @@ class _ScanPageState extends State<ScanPage> {
   void _onScanWidgetCreated(ScanWidgetController controller) {
     this.qrController = controller;
     controller.scannedDataStream.listen((scanData) {
+      _closeFlash();
+      qrController?.pauseCamera();
+      qrController?.dispose();
       print('scannedDataStream:$scanData');
       Navigator.pop(context);
     });
+  }
+
+  ///切换手电筒状态
+  _toggleFlash() {
+    qrController?.toggleFlash();
+    isFlash = !isFlash;
+  }
+
+  ///关闭手电筒
+  _closeFlash() {
+    if (isFlash) {
+      _toggleFlash();
+    }
   }
 
   @override
