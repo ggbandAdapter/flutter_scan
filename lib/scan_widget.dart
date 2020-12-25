@@ -99,8 +99,7 @@ class ScanWidgetController {
         switch (call.method) {
           case scanMethodCall:
             if (call.arguments != null) {
-              _scanUpdateController.sink.addError('onPermissionError');
-              //_scanUpdateController.sink.add(call.arguments.toString());
+              _scanUpdateController.sink.add(call.arguments.toString());
             }
             break;
           case scanError:
