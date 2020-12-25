@@ -82,7 +82,7 @@ class _ScanWidgetState extends State<ScanWidget> {
 class ScanWidgetController {
   //扫描结果回调
   static const scanMethodCall = 'onRecognizeQR';
-  static const scanError = 'onRequestPermission';
+  static const scanError = 'onPermissionError';
   final MethodChannel _channel;
 
   ScanWidgetController._(int id, GlobalKey qrKey)
@@ -99,10 +99,12 @@ class ScanWidgetController {
         switch (call.method) {
           case scanMethodCall:
             if (call.arguments != null) {
-              _scanUpdateController.sink.add(call.arguments.toString());
+              _scanUpdateController.sink.addError('onPermissionError');
+              //_scanUpdateController.sink.add(call.arguments.toString());
             }
             break;
           case scanError:
+            _scanUpdateController.sink.addError('onPermissionError');
             break;
         }
       },

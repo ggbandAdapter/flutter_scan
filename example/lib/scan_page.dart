@@ -61,6 +61,8 @@ class _ScanPageState extends State<ScanPage> {
       qrController?.dispose();
       print('scannedDataStream:$scanData');
       Navigator.pop(context, scanTime);
+    }, onError: (error) {
+      print('error:$error');
     });
   }
 
