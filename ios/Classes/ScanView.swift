@@ -27,7 +27,7 @@ public class ScanView:NSObject,FlutterPlatformView {
                     if let codes = codes {
                         for code in codes {
                             guard let stringValue = code.stringValue else { continue }
-                            self?.channel.invokeMethod("onRecognizeQR", arguments: stringValue)
+                            self.channel.invokeMethod("onRecognizeQR", arguments: stringValue)
                         }
                     }
                 })
@@ -35,7 +35,7 @@ public class ScanView:NSObject,FlutterPlatformView {
                 NSLog("Unable to start scanning")
             }
         } else {
-          self?.channel.invokeMethod("onPermissionError", arguments: "Scanning Unavailable")
+          self.channel.invokeMethod("onPermissionError", arguments: "Scanning Unavailable")
          // UIAlertView(title: "Scanning Unavailable", message: "This app does not have permission to access the camera", delegate: nil, cancelButtonTitle: nil, otherButtonTitles: "Ok").show()
         }
     }
